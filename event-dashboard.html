@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventHub Pro - Dual-Role Event Management Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+            color: #e4e4e7;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Role Selection Screen */
+        .role-selection {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .role-container {
+            text-align: center;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .role-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .role-subtitle {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .role-buttons {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .role-card {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border: 2px solid #334155;
+            border-radius: 20px;
+            padding: 3rem 2.5rem;
+            width: 300px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: fadeIn 1s ease;
+        }
+
+        .role-card:hover {
+            transform: translateY(-10px);
+            border-color: #667eea;
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+        }
+
+        .role-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .role-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 0.8rem;
+            color: #f1f5f9;
+        }
+
+        .role-card p {
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+
+        /* Dashboard Layout */
+        .dashboard {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .dashboard.active {
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            border-right: 1px solid #334155;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid #334155;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .role-badge {
+            display: inline-block;
+            margin-top: 0.5rem;
+            padding: 0.3rem 0.8rem;
+            background: rgba(102, 126, 234, 0.2);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #667eea;
+        }
+
+        .sidebar-nav {
+            margin-top: 2rem;
+        }
+
+        .nav-item {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-left-color: #667eea;
+        }
+
+        .nav-item.active {
+            background: rgba(102, 126, 234, 0.15);
+            border-left-color: #667eea;
+            color: #667eea;
+        }
+
+        .back-btn {
+            margin: 2rem 1.5rem 0;
+            padding: 0.8rem 1.2rem;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            border-radius: 10px;
+            color: #ef4444;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .back-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 2rem;
+        }
+
+        /* Notification Bar */
+        .notification-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            display: none;
+            align-items: center;
+            gap: 1rem;
+            animation: slideDown 0.5s ease;
+        }
+
+        .notification-bar.show {
+            display: flex;
+        }
+
+        .notification-icon {
+            font-size: 1.5rem;
+            animation: bell 1s ease infinite;
+        }
+
+        /* Statistics Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            padding: 1.8rem;
+            border-radius: 16px;
+            border: 1px solid #334155;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        /* Form Section */
+        .form-section {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid #334155;
+            margin-bottom: 2rem;
+        }
+
+        .form-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: #f1f5f9;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            margin-bottom: 0.5rem;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+        }
+
+        input, textarea, select {
+            padding: 0.8rem 1rem;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #e4e4e7;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-disabled {
+            background: #374151;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+
+        .btn-disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Events Grid */
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .event-card {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 1.8rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .event-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            border-color: #667eea;
+        }
+
+        .event-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .event-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #f1f5f9;
+        }
+
+        .event-date {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .event-details {
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #334155;
+        }
+
+        .detail-label {
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+
+        .detail-value {
+            color: #e4e4e7;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .countdown-section {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+        }
+
+        .countdown-title {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
+        }
+
+        .countdown-timer {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .countdown-timer.urgent {
+            color: #ef4444;
+            animation: pulse 1.5s ease infinite;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .status-available {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .status-limited {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        .status-full {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .update-message {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid #3b82f6;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            color: #93c5fd;
+            font-size: 0.9rem;
+        }
+
+        .registration-count {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .registration-count span {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #10b981;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        @keyframes bell {
+            0%, 100% {
+                transform: rotate(0deg);
+            }
+            10%, 30% {
+                transform: rotate(-10deg);
+            }
+            20%, 40% {
+                transform: rotate(10deg);
+            }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .role-title {
+                font-size: 2.5rem;
+            }
+
+            .role-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .events-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Role Selection Screen -->
+    <div id="roleSelection" class="role-selection">
+        <div class="role-container">
+            <h1 class="role-title">EventHub Pro</h1>
+            <p class="role-subtitle">Professional Dual-Role Event Management Platform</p>
+            <div class="role-buttons">
+                <div class="role-card" onclick="selectRole('organizer')">
+                    <div class="role-icon">🎯</div>
+                    <h3>Organizer Mode</h3>
+                    <p>Create and manage events, track registrations, and coordinate with participants</p>
+                </div>
+                <div class="role-card" onclick="selectRole('participant')">
+                    <div class="role-icon">🎫</div>
+                    <h3>Participant Mode</h3>
+                    <p>Discover upcoming events, register for activities, and stay updated</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Organizer Dashboard -->
+    <div id="organizerDashboard" class="dashboard">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">EventHub Pro</div>
+                <span class="role-badge">Organizer</span>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-item active" onclick="showOrganizerSection('overview')">
+                    📊 Dashboard
+                </div>
+                <div class="nav-item" onclick="showOrganizerSection('create')">
+                    ➕ Create Event
+                </div>
+                <div class="nav-item" onclick="showOrganizerSection('events')">
+                    📅 My Events
+                </div>
+            </nav>
+            <div class="back-btn" onclick="backToSelection()">
+                ← Back to Selection
+            </div>
+        </div>
+        <div class="main-content">
+            <div id="organizerNotification" class="notification-bar">
+                <span class="notification-icon">🔔</span>
+                <span id="organizerNotificationText"></span>
+            </div>
+
+            <!-- Overview Section -->
+            <div id="overviewSection">
+                <h2 class="form-title">Dashboard Overview</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Events</div>
+                        <div class="stat-value" id="totalEvents">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Registrations</div>
+                        <div class="stat-value" id="totalRegistrations">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Active Events</div>
+                        <div class="stat-value" id="activeEvents">0</div>
+                    </div>
+                </div>
+
+                <h3 class="form-title" style="margin-top: 2rem;">Recent Events</h3>
+                <div id="recentEventsGrid" class="events-grid"></div>
+            </div>
+
+            <!-- Create Event Section -->
+            <div id="createSection" class="hidden">
+                <div class="form-section">
+                    <h2 class="form-title">Create New Event</h2>
+                    <form id="createEventForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="eventName">Event Name *</label>
+                                <input type="text" id="eventName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="eventDateTime">Event Date & Time *</label>
+                                <input type="datetime-local" id="eventDateTime" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="registrationDeadline">Registration Deadline *</label>
+                                <input type="datetime-local" id="registrationDeadline" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="venue">Venue *</label>
+                                <input type="text" id="venue" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="coordinatorName">Student Coordinator Name *</label>
+                                <input type="text" id="coordinatorName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="coordinatorPhone">Coordinator Phone *</label>
+                                <input type="tel" id="coordinatorPhone" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="accommodation">Accommodation Available</label>
+                                <select id="accommodation">
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="food">Food Available</label>
+                                <select id="food">
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="seatingCapacity">Seating Capacity *</label>
+                                <input type="number" id="seatingCapacity" min="1" required>
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="updateMessage">Latest Update Message</label>
+                                <textarea id="updateMessage" placeholder="Share important updates with participants..."></textarea>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Create Event</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- My Events Section -->
+            <div id="eventsSection" class="hidden">
+                <h2 class="form-title">My Events</h2>
+                <div id="myEventsGrid" class="events-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Participant Dashboard -->
+    <div id="participantDashboard" class="dashboard">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">EventHub Pro</div>
+                <span class="role-badge">Participant</span>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-item active">
+                    🎪 Upcoming Events
+                </div>
+                <div class="nav-item">
+                    ✅ My Registrations
+                </div>
+            </nav>
+            <div class="back-btn" onclick="backToSelection()">
+                ← Back to Selection
+            </div>
+        </div>
+        <div class="main-content">
+            <div id="participantNotification" class="notification-bar">
+                <span class="notification-icon">🔔</span>
+                <span id="participantNotificationText"></span>
+            </div>
+
+            <h2 class="form-title">Upcoming Events</h2>
+            <div id="participantEventsGrid" class="events-grid"></div>
+        </div>
+    </div>
+
+    <script>
+        // Data Management
+        let events = [];
+        let registrations = {};
+
+        // Initialize
+        function init() {
+            loadData();
+            updateDashboard();
+            setInterval(updateCountdowns, 1000);
+            setInterval(checkDeadlines, 60000);
+        }
+
+        // Load data from localStorage
+        function loadData() {
+            const storedEvents = localStorage.getItem('eventHubEvents');
+            const storedRegistrations = localStorage.getItem('eventHubRegistrations');
+
+            if (storedEvents) {
+                events = JSON.parse(storedEvents);
+            }
+
+            if (storedRegistrations) {
+                registrations = JSON.parse(storedRegistrations);
+            }
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('eventHubEvents', JSON.stringify(events));
+            localStorage.setItem('eventHubRegistrations', JSON.stringify(registrations));
+        }
+
+        // Role Selection
+        function selectRole(role) {
+            document.getElementById('roleSelection').style.display = 'none';
+
+            if (role === 'organizer') {
+                document.getElementById('organizerDashboard').classList.add('active');
+                updateOrganizerDashboard();
+            } else {
+                document.getElementById('participantDashboard').classList.add('active');
+                updateParticipantDashboard();
+            }
+        }
+
+        function backToSelection() {
+            document.getElementById('organizerDashboard').classList.remove('active');
+            document.getElementById('participantDashboard').classList.remove('active');
+            document.getElementById('roleSelection').style.display = 'flex';
+        }
+
+        // Organizer Functions
+        function showOrganizerSection(section) {
+            document.querySelectorAll('#organizerDashboard .nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            event.target.classList.add('active');
+
+            document.getElementById('overviewSection').classList.add('hidden');
+            document.getElementById('createSection').classList.add('hidden');
+            document.getElementById('eventsSection').classList.add('hidden');
+
+            if (section === 'overview') {
+                document.getElementById('overviewSection').classList.remove('hidden');
+                updateOrganizerDashboard();
+            } else if (section === 'create') {
+                document.getElementById('createSection').classList.remove('hidden');
+            } else if (section === 'events') {
+                document.getElementById('eventsSection').classList.remove('hidden');
+                displayMyEvents();
+            }
+        }
+
+        document.getElementById('createEventForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const newEvent = {
+                id: Date.now(),
+                name: document.getElementById('eventName').value,
+                dateTime: document.getElementById('eventDateTime').value,
+                deadline: document.getElementById('registrationDeadline').value,
+                venue: document.getElementById('venue').value,
+                coordinator: document.getElementById('coordinatorName').value,
+                phone: document.getElementById('coordinatorPhone').value,
+                accommodation: document.getElementById('accommodation').value,
+                food: document.getElementById('food').value,
+                capacity: parseInt(document.getElementById('seatingCapacity').value),
+                updateMessage: document.getElementById('updateMessage').value,
+                createdAt: new Date().toISOString()
+            };
+
+            events.push(newEvent);
+            registrations[newEvent.id] = [];
+            saveData();
+
+            showNotification('organizer', `Event "${newEvent.name}" created successfully!`);
+            showNotification('participant', `New event "${newEvent.name}" has been added!`);
+
+            document.getElementById('createEventForm').reset();
+            showOrganizerSection('events');
+            updateDashboard();
+        });
+
+        function updateOrganizerDashboard() {
+            const totalEventsCount = events.length;
+            let totalRegs = 0;
+
+            Object.values(registrations).forEach(regs => {
+                totalRegs += regs.length;
+            });
+
+            const now = new Date();
+            const activeEventsCount = events.filter(e => new Date(e.dateTime) > now).length;
+
+            document.getElementById('totalEvents').textContent = totalEventsCount;
+            document.getElementById('totalRegistrations').textContent = totalRegs;
+            document.getElementById('activeEvents').textContent = activeEventsCount;
+
+            displayRecentEvents();
+        }
+
+        function displayRecentEvents() {
+            const grid = document.getElementById('recentEventsGrid');
+            const recentEvents = events.slice(-3).reverse();
+
+            if (recentEvents.length === 0) {
+                grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No events created yet</p></div>';
+                return;
+            }
+
+            grid.innerHTML = recentEvents.map(event => createEventCardHTML(event, 'organizer')).join('');
+        }
+
+        function displayMyEvents() {
+            const grid = document.getElementById('myEventsGrid');
+
+            if (events.length === 0) {
+                grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No events created yet</p></div>';
+                return;
+            }
+
+            grid.innerHTML = events.map(event => createEventCardHTML(event, 'organizer')).join('');
+        }
+
+        // Participant Functions
+        function updateParticipantDashboard() {
+            const grid = document.getElementById('participantEventsGrid');
+            const now = new Date();
+            const upcomingEvents = events.filter(e => new Date(e.dateTime) > now);
+
+            if (upcomingEvents.length === 0) {
+                grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No upcoming events available</p></div>';
+                return;
+            }
+
+            grid.innerHTML = upcomingEvents.map(event => createEventCardHTML(event, 'participant')).join('');
+        }
+
+        function registerForEvent(eventId) {
+            const event = events.find(e => e.id === eventId);
+            if (!event) return;
+
+            const userId = 'user_' + Math.random().toString(36).substr(2, 9);
+
+            if (!registrations[eventId]) {
+                registrations[eventId] = [];
+            }
+
+            registrations[eventId].push({
+                userId: userId,
+                registeredAt: new Date().toISOString()
+            });
+
+            saveData();
+            showNotification('participant', `Successfully registered for "${event.name}"!`);
+            updateDashboard();
+        }
+
+        // Event Card HTML
+        function createEventCardHTML(event, role) {
+            const now = new Date();
+            const eventDate = new Date(event.dateTime);
+            const deadline = new Date(event.deadline);
+            const registrationCount = registrations[event.id] ? registrations[event.id].length : 0;
+            const seatsAvailable = event.capacity - registrationCount;
+            const deadlinePassed = now > deadline;
+            const seatsFull = seatsAvailable <= 0;
+
+            let statusClass = 'status-available';
+            let statusText = `${seatsAvailable} seats available`;
+
+            if (seatsFull) {
+                statusClass = 'status-full';
+                statusText = 'Seats Full';
+            } else if (seatsAvailable <= event.capacity * 0.3) {
+                statusClass = 'status-limited';
+                statusText = `Only ${seatsAvailable} seats left!`;
+            }
+
+            let countdownHTML = '';
+            if (role === 'participant') {
+                countdownHTML = `
+                    <div class="countdown-section">
+                        <div class="countdown-title">⏰ Registration Deadline</div>
+                        <div class="countdown-timer" data-deadline="${event.deadline}" data-event-id="${event.id}">
+                            Calculating...
+                        </div>
+                    </div>
+                    <div class="countdown-section">
+                        <div class="countdown-title">🎯 Event Starts In</div>
+                        <div class="countdown-timer" data-eventtime="${event.dateTime}">
+                            Calculating...
+                        </div>
+                    </div>
+                `;
+            }
+
+            let actionButton = '';
+            if (role === 'participant') {
+                if (deadlinePassed) {
+                    actionButton = '<button class="btn btn-disabled">Registration Closed</button>';
+                } else if (seatsFull) {
+                    actionButton = '<button class="btn btn-disabled">Seats Full</button>';
+                } else {
+                    actionButton = `<button class="btn btn-success" onclick="registerForEvent(${event.id})">Register Now</button>`;
+                }
+            }
+
+            const updateMessageHTML = event.updateMessage ?
+                `<div class="update-message">📢 Update: ${event.updateMessage}</div>` : '';
+
+            return `
+                <div class="event-card">
+                    <div class="event-header">
+                        <h3 class="event-name">${event.name}</h3>
+                        <div class="event-date">📅 ${formatDate(event.dateTime)}</div>
+                    </div>
+
+                    <div class="event-details">
+                        <div class="detail-row">
+                            <span class="detail-label">Venue</span>
+                            <span class="detail-value">${event.venue}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Coordinator</span>
+                            <span class="detail-value">${event.coordinator}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Contact</span>
+                            <span class="detail-value">${event.phone}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Accommodation</span>
+                            <span class="detail-value">${event.accommodation === 'yes' ? '✅ Available' : '❌ Not Available'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Food</span>
+                            <span class="detail-value">${event.food === 'yes' ? '✅ Available' : '❌ Not Available'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Deadline</span>
+                            <span class="detail-value ${deadlinePassed ? 'status-full' : ''}">${formatDate(event.deadline)}</span>
+                        </div>
+                    </div>
+
+                    ${updateMessageHTML}
+                    ${countdownHTML}
+
+                    <div class="registration-count">
+                        <span>${registrationCount}</span> / ${event.capacity} registered
+                    </div>
+
+                    <div class="status-badge ${statusClass}">${statusText}</div>
+                    ${actionButton}
+                </div>
+            `;
+        }
+
+        // Countdown Timer
+        function updateCountdowns() {
+            document.querySelectorAll('.countdown-timer').forEach(timer => {
+                const deadline = timer.getAttribute('data-deadline');
+                const eventTime = timer.getAttribute('data-eventtime');
+
+                const targetTime = deadline || eventTime;
+                if (!targetTime) return;
+
+                const now = new Date();
+                const target = new Date(targetTime);
+                const diff = target - now;
+
+                if (diff <= 0) {
+                    timer.textContent = deadline ? 'Registration Closed' : 'Event Started';
+                    timer.classList.add('urgent');
+                    return;
+                }
+
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                timer.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+                if (days === 0 && hours < 24) {
+                    timer.classList.add('urgent');
+                }
+            });
+        }
+
+        // Check Deadlines
+        function checkDeadlines() {
+            const now = new Date();
+
+            events.forEach(event => {
+                const deadline = new Date(event.deadline);
+                const hoursUntilDeadline = (deadline - now) / (1000 * 60 * 60);
+
+                if (hoursUntilDeadline > 0 && hoursUntilDeadline <= 24) {
+                    showNotification('participant', `⚠️ Less than 24 hours to register for "${event.name}"!`);
+                }
+            });
+        }
+
+        // Notification System
+        function showNotification(role, message) {
+            const notificationBar = document.getElementById(`${role}Notification`);
+            const notificationText = document.getElementById(`${role}NotificationText`);
+
+            notificationText.textContent = message;
+            notificationBar.classList.add('show');
+
+            setTimeout(() => {
+                notificationBar.classList.remove('show');
+            }, 5000);
+        }
+
+        // Utility Functions
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function updateDashboard() {
+            updateOrganizerDashboard();
+            updateParticipantDashboard();
+        }
+
+        // Initialize on load
+        window.addEventListener('load', init);
+
+        // Auto-refresh dashboards when localStorage changes (simulates real-time)
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'eventHubEvents' || e.key === 'eventHubRegistrations') {
+                loadData();
+                updateDashboard();
+            }
+        });
+    </script>
+</body>
+</html>

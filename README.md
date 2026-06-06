@@ -97,6 +97,9 @@ http://localhost:5173
 ## Author
 
 **Shivapriya**
+<img width="1465" height="767" alt="image" src="https://github.com/user-attachments/assets/ebe230d4-6c04-4207-bddc-a0e45f253263" />
+<img width="1498" height="816" alt="image" src="https://github.com/user-attachments/assets/baae3758-1753-484d-afc5-5d84c7a06006" />
+<img width="1490" height="831" alt="image" src="https://github.com/user-attachments/assets/e61f2bc7-5ef7-4b49-96c3-666f4ba2af25" />
 
 Computer Science Student | AI & Web Development Enthusiast
 
